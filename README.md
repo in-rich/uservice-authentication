@@ -34,10 +34,6 @@ Firebase authentication proxy. Handle user-related operations.
   ```bash
   go install github.com/vektra/mockery/v2@v2.43.2
   ```
-- [gotestsum](https://github.com/gotestyourself/gotestsum): Pretty test output. Requires Go.
-  ```bash
-  go install gotest.tools/gotestsum@latest
-  ```
 - (Optional) [Node.js](https://nodejs.org/en/download/package-manager): Can help install some dependencies. Chose LTS (stable version).
 - [Firebase CLI](https://firebase.google.com/docs/cli?hl=fr): used to interact with our Firebase Stack.
   - If you installed Node.js, you can use:

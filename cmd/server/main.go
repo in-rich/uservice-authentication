@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/in-rich/lib-go/deploy"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/config"
@@ -13,9 +12,14 @@ import (
 )
 
 func main() {
-	db, closeDB := deploy.OpenDB(config.App.Postgres.DSN)
+	log.Println("Starting server")
+	db, closeDB, err := deploy.OpenDB(config.App.Postgres.DSN)
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
 	defer closeDB()
 
+	log.Println("Running migrations")
 	if err := migrations.Migrate(db); err != nil {
 		log.Fatalf("failed to migrate: %v", err)
 	}
@@ -35,14 +39,17 @@ func main() {
 	listUsersHandler := handlers.NewListUsersHandler(listUsersService)
 	updateUserHandler := handlers.NewUpdateUserHandler(updateUserService)
 
-	listener, server := deploy.StartGRPCServer(fmt.Sprintf(":%d", config.App.Server.Port), "authentication")
+	log.Println("Starting to listen on port", config.App.Server.Port)
+	listener, server, health := deploy.StartGRPCServer(config.App.Server.Port)
 	defer deploy.CloseGRPCServer(listener, server)
+	go health()
 
 	authentication_pb.RegisterAuthenticateServer(server, authenticateHandler)
 	authentication_pb.RegisterGetUserServer(server, getUserHandler)
 	authentication_pb.RegisterListUsersServer(server, listUsersHandler)
 	authentication_pb.RegisterUpdateUserServer(server, updateUserHandler)
 
+	log.Println("Server started")
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
