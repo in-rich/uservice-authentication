@@ -8,6 +8,12 @@ import (
 //go:embed app.dev.yaml
 var appDevFile []byte
 
+//go:embed app.staging.yaml
+var appStagingFile []byte
+
+//go:embed app.prod.yaml
+var appProdFile []byte
+
 type AppType struct {
 	Server struct {
 		Port int `yaml:"port"`
@@ -17,4 +23,8 @@ type AppType struct {
 	} `yaml:"postgres"`
 }
 
-var App = deploy.LoadConfig[AppType](deploy.DevConfig(appDevFile))
+var App = deploy.LoadConfig[AppType](
+	deploy.DevConfig(appDevFile),
+	deploy.StagingConfig(appStagingFile),
+	deploy.ProdConfig(appProdFile),
+)

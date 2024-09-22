@@ -6,14 +6,14 @@ require (
 	firebase.google.com/go/v4 v4.14.1
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/google/uuid v1.6.0
-	github.com/in-rich/lib-go v0.0.0-20240915223701-eac51d5839fc
-	github.com/in-rich/proto/proto-go v0.0.0-20240910093514-23d9ea0c1786
+	github.com/in-rich/lib-go v0.0.0-20240922074010-db24b221c13b
+	github.com/in-rich/proto/proto-go v0.0.0-20240920133104-73bf2955c2ba
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/bun v1.2.3
 	github.com/uptrace/bun/dialect/pgdialect v1.2.3
 	github.com/uptrace/bun/driver/pgdriver v1.2.3
-	google.golang.org/grpc v1.66.2
+	google.golang.org/grpc v1.67.0
 )
 
 require (
@@ -65,7 +65,7 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/api v0.197.0 // indirect
+	google.golang.org/api v0.198.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
 	google.golang.org/genproto v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
