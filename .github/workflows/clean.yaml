@@ -26,3 +26,4 @@ jobs:
           package-type: 'container'
           delete-only-pre-release-versions: false
           delete-only-untagged-versions: false
+          min-versions-to-keep: 0
