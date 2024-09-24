@@ -94,6 +94,7 @@ jobs:
     env:
       PORT: 1100
       GOPRIVATE: github.com/in-rich/*
+      DSN: "postgres://postgres:postgres@localhost:1101/postgres?sslmode=disable"
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}/${{ github.head_ref || github.ref_name }}
     steps:
@@ -132,6 +133,8 @@ jobs:
         run: |
           docker run -d \
             -p $PORT:$PORT --network="host" \
+            -e PORT=$PORT \
+            -e DSN="$DSN" \
             -e GOOGLE_APPLICATION_CREDENTIALS="/firebase-adc.json" \
             --mount type=bind,source="$HOME/firebase-adc.json",target=/firebase-adc.json,readonly \
             --name uservice-container \

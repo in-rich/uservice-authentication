@@ -5,14 +5,8 @@ import (
 	"github.com/in-rich/lib-go/deploy"
 )
 
-//go:embed app.dev.yaml
-var appDevFile []byte
-
-//go:embed app.staging.yaml
-var appStagingFile []byte
-
-//go:embed app.prod.yaml
-var appProdFile []byte
+//go:embed app.yaml
+var appFile []byte
 
 type AppType struct {
 	Server struct {
@@ -24,7 +18,5 @@ type AppType struct {
 }
 
 var App = deploy.LoadConfig[AppType](
-	deploy.DevConfig(appDevFile),
-	deploy.StagingConfig(appStagingFile),
-	deploy.ProdConfig(appProdFile),
+	deploy.GlobalConfig(appFile),
 )
