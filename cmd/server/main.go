@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/in-rich/lib-go/deploy"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/config"
@@ -24,6 +25,19 @@ func main() {
 		log.Fatalf("failed to migrate: %v", err)
 	}
 
+	depCheck := func() map[string]bool {
+		errDB := db.Ping()
+		_, errAuth := config.AuthClient.GetProjectConfig(context.Background())
+
+		return map[string]bool{
+			"Authenticated": errAuth == nil && errDB == nil,
+			"GetUser":       errDB == nil,
+			"ListUsers":     errDB == nil,
+			"UpdateUser":    errDB == nil,
+			"":              errDB == nil && errAuth == nil,
+		}
+	}
+
 	getUsersDAO := dao.NewGetUserRepository(db)
 	listUsersDAO := dao.NewListUsersRepository(db)
 	createUserDAO := dao.NewCreateUserRepository(db)
@@ -40,7 +54,7 @@ func main() {
 	updateUserHandler := handlers.NewUpdateUserHandler(updateUserService)
 
 	log.Println("Starting to listen on port", config.App.Server.Port)
-	listener, server, health := deploy.StartGRPCServer(config.App.Server.Port)
+	listener, server, health := deploy.StartGRPCServer(config.App.Server.Port, depCheck)
 	defer deploy.CloseGRPCServer(listener, server)
 	go health()
 
