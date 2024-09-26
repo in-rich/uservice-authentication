@@ -6,8 +6,8 @@ require (
 	firebase.google.com/go/v4 v4.14.1
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/google/uuid v1.6.0
-	github.com/in-rich/lib-go v0.0.0-20240924230758-8169f02f4f65
-	github.com/in-rich/proto/proto-go v0.0.0-20240924133509-c5742944855b
+	github.com/in-rich/lib-go v0.0.0-20240926161047-56e1ce82a22c
+	github.com/in-rich/proto/proto-go v0.0.0-20240926072742-2db3ff45f9c2
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/bun v1.2.3
@@ -18,7 +18,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.1 // indirect
-	cloud.google.com/go/auth v0.9.4 // indirect
+	cloud.google.com/go/auth v0.9.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	cloud.google.com/go/firestore v1.17.0 // indirect
@@ -65,7 +65,7 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/api v0.198.0 // indirect
+	google.golang.org/api v0.199.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
 	google.golang.org/genproto v0.0.0-20240924160255-9d4c2d233b61 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240924160255-9d4c2d233b61 // indirect

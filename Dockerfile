@@ -14,8 +14,6 @@ COPY --from=builder /server /server
 
 ENV PORT=8080
 
-ENV HOST="0.0.0.0"
-
 EXPOSE $PORT
 
 # Run
