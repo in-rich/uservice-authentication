@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/models"
 	"github.com/in-rich/uservice-authentication/pkg/services"
@@ -13,9 +14,10 @@ import (
 type UpdateUserHandler struct {
 	authentication_pb.UpdateUserServer
 	service services.UpdateUserService
+	logger  monitor.GRPCLogger
 }
 
-func (h *UpdateUserHandler) UpdateUser(ctx context.Context, in *authentication_pb.UpdateUserRequest) (*authentication_pb.User, error) {
+func (h *UpdateUserHandler) updateUser(ctx context.Context, in *authentication_pb.UpdateUserRequest) (*authentication_pb.User, error) {
 	user, err := h.service.Exec(ctx, in.GetToken(), &models.UpdateUser{
 		PublicIdentifier: in.GetPublicIdentifier(),
 	})
@@ -47,8 +49,15 @@ func (h *UpdateUserHandler) UpdateUser(ctx context.Context, in *authentication_p
 	}, nil
 }
 
-func NewUpdateUserHandler(service services.UpdateUserService) *UpdateUserHandler {
+func (h *UpdateUserHandler) UpdateUser(ctx context.Context, in *authentication_pb.UpdateUserRequest) (*authentication_pb.User, error) {
+	res, err := h.updateUser(ctx, in)
+	h.logger.Report(ctx, "UpdateUser", err)
+	return res, err
+}
+
+func NewUpdateUserHandler(service services.UpdateUserService, logger monitor.GRPCLogger) *UpdateUserHandler {
 	return &UpdateUserHandler{
 		service: service,
+		logger:  logger,
 	}
 }

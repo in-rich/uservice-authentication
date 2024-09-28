@@ -2,27 +2,40 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/in-rich/lib-go/deploy"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/config"
 	"github.com/in-rich/uservice-authentication/migrations"
 	"github.com/in-rich/uservice-authentication/pkg/dao"
 	"github.com/in-rich/uservice-authentication/pkg/handlers"
 	"github.com/in-rich/uservice-authentication/pkg/services"
-	"log"
+	"github.com/rs/zerolog"
+	"os"
 )
 
+func getLogger() monitor.GRPCLogger {
+	if deploy.IsReleaseEnv() {
+		return monitor.NewGCPGRPCLogger(zerolog.New(os.Stdout), "uservice-authentication")
+	}
+
+	return monitor.NewConsoleGRPCLogger()
+}
+
 func main() {
-	log.Println("Starting server")
+	logger := getLogger()
+
+	logger.Info("Starting server")
 	db, closeDB, err := deploy.OpenDB(config.App.Postgres.DSN)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		logger.Fatal(err, "failed to connect to database")
 	}
 	defer closeDB()
 
-	log.Println("Running migrations")
+	logger.Info("Running migrations")
 	if err := migrations.Migrate(db); err != nil {
-		log.Fatalf("failed to migrate: %v", err)
+		logger.Fatal(err, "failed to migrate")
 	}
 
 	depCheck := deploy.DepsCheck{
@@ -51,13 +64,13 @@ func main() {
 	listUsersService := services.NewListUsersService(config.AuthClient, listUsersDAO)
 	updateUserService := services.NewUpdateUserService(authenticateService, createUserDAO, updateUserDAO)
 
-	authenticateHandler := handlers.NewAuthenticateHandler(authenticateService)
-	getUserHandler := handlers.NewGetUserHandler(getUserService)
-	listUsersHandler := handlers.NewListUsersHandler(listUsersService)
-	updateUserHandler := handlers.NewUpdateUserHandler(updateUserService)
+	authenticateHandler := handlers.NewAuthenticateHandler(authenticateService, logger)
+	getUserHandler := handlers.NewGetUserHandler(getUserService, logger)
+	listUsersHandler := handlers.NewListUsersHandler(listUsersService, logger)
+	updateUserHandler := handlers.NewUpdateUserHandler(updateUserService, logger)
 
-	log.Println("Starting to listen on port", config.App.Server.Port)
-	listener, server, health := deploy.StartGRPCServer(config.App.Server.Port, depCheck)
+	logger.Info(fmt.Sprintf("Starting to listen on port %v", config.App.Server.Port))
+	listener, server, health := deploy.StartGRPCServer(logger, config.App.Server.Port, depCheck)
 	defer deploy.CloseGRPCServer(listener, server)
 	go health()
 
@@ -66,8 +79,8 @@ func main() {
 	authentication_pb.RegisterListUsersServer(server, listUsersHandler)
 	authentication_pb.RegisterUpdateUserServer(server, updateUserHandler)
 
-	log.Println("Server started")
+	logger.Info("Server started")
 	if err := server.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		logger.Fatal(err, "failed to serve")
 	}
 }

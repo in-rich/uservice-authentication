@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/handlers"
 	"github.com/in-rich/uservice-authentication/pkg/models"
@@ -106,7 +107,7 @@ func TestUpdateUser(t *testing.T) {
 				PublicIdentifier: tt.in.PublicIdentifier,
 			}).Return(tt.serviceResponse, tt.serviceErr)
 
-			handler := handlers.NewUpdateUserHandler(service)
+			handler := handlers.NewUpdateUserHandler(service, monitor.NewDummyGRPCLogger())
 
 			resp, err := handler.UpdateUser(context.TODO(), tt.in)
 

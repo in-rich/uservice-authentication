@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/handlers"
 	"github.com/in-rich/uservice-authentication/pkg/models"
@@ -65,7 +66,7 @@ func TestGetUser(t *testing.T) {
 
 			service.On("Exec", context.TODO(), tt.in.FirebaseUid).Return(tt.serviceResponse, tt.serviceErr)
 
-			handler := handlers.NewGetUserHandler(service)
+			handler := handlers.NewGetUserHandler(service, monitor.NewDummyGRPCLogger())
 
 			resp, err := handler.GetUser(context.TODO(), tt.in)
 
