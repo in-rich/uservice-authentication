@@ -25,17 +25,20 @@ func main() {
 		log.Fatalf("failed to migrate: %v", err)
 	}
 
-	depCheck := func() map[string]bool {
-		errDB := db.Ping()
-		_, errAuth := config.AuthClient.GetProjectConfig(context.Background())
-
-		return map[string]bool{
-			"Authenticated": errAuth == nil && errDB == nil,
-			"GetUser":       errDB == nil,
-			"ListUsers":     errDB == nil,
-			"UpdateUser":    errDB == nil,
-			"":              errDB == nil && errAuth == nil,
-		}
+	depCheck := deploy.DepsCheck{
+		Dependencies: func() map[string]error {
+			_, errAuth := config.AuthClient.GetProjectConfig(context.Background())
+			return map[string]error{
+				"Postgres":       db.Ping(),
+				"Firebase(Auth)": errAuth,
+			}
+		},
+		Services: deploy.DepCheckServices{
+			"Authenticated": {"Postgres", "Firebase(Auth)"},
+			"GetUser":       {"Postgres"},
+			"ListUsers":     {"Postgres"},
+			"UpdateUser":    {"Postgres"},
+		},
 	}
 
 	getUsersDAO := dao.NewGetUserRepository(db)
