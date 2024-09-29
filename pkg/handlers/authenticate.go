@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/services"
 	"google.golang.org/grpc/codes"
@@ -12,9 +13,10 @@ import (
 type AuthenticateHandler struct {
 	authentication_pb.AuthenticateServer
 	service services.AuthenticateService
+	logger  monitor.GRPCLogger
 }
 
-func (h *AuthenticateHandler) Authenticate(ctx context.Context, in *authentication_pb.AuthenticateRequest) (*authentication_pb.User, error) {
+func (h *AuthenticateHandler) authenticate(ctx context.Context, in *authentication_pb.AuthenticateRequest) (*authentication_pb.User, error) {
 	user, err := h.service.Exec(ctx, in.Token)
 	if err != nil {
 		if errors.Is(err, services.ErrUnauthenticated) {
@@ -37,8 +39,15 @@ func (h *AuthenticateHandler) Authenticate(ctx context.Context, in *authenticati
 	}, nil
 }
 
-func NewAuthenticateHandler(service services.AuthenticateService) *AuthenticateHandler {
+func (h *AuthenticateHandler) Authenticate(ctx context.Context, in *authentication_pb.AuthenticateRequest) (*authentication_pb.User, error) {
+	res, err := h.authenticate(ctx, in)
+	h.logger.Report(ctx, "Authenticate", err)
+	return res, err
+}
+
+func NewAuthenticateHandler(service services.AuthenticateService, logger monitor.GRPCLogger) *AuthenticateHandler {
 	return &AuthenticateHandler{
 		service: service,
+		logger:  logger,
 	}
 }

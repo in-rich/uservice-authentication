@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/services"
 	"google.golang.org/grpc/codes"
@@ -12,9 +13,10 @@ import (
 type GetUserHandler struct {
 	authentication_pb.GetUserServer
 	service services.GetUserService
+	logger  monitor.GRPCLogger
 }
 
-func (h *GetUserHandler) GetUser(ctx context.Context, in *authentication_pb.GetUserRequest) (*authentication_pb.User, error) {
+func (h *GetUserHandler) getUser(ctx context.Context, in *authentication_pb.GetUserRequest) (*authentication_pb.User, error) {
 	user, err := h.service.Exec(ctx, in.GetFirebaseUid())
 	if err != nil {
 		if errors.Is(err, services.ErrUserNotFound) {
@@ -31,8 +33,15 @@ func (h *GetUserHandler) GetUser(ctx context.Context, in *authentication_pb.GetU
 	}, nil
 }
 
-func NewGetUserHandler(service services.GetUserService) *GetUserHandler {
+func (h *GetUserHandler) GetUser(ctx context.Context, in *authentication_pb.GetUserRequest) (*authentication_pb.User, error) {
+	res, err := h.getUser(ctx, in)
+	h.logger.Report(ctx, "GetUser", err)
+	return res, err
+}
+
+func NewGetUserHandler(service services.GetUserService, logger monitor.GRPCLogger) *GetUserHandler {
 	return &GetUserHandler{
 		service: service,
+		logger:  logger,
 	}
 }

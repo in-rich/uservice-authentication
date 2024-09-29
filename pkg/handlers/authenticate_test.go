@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"context"
 	"errors"
+	"github.com/in-rich/lib-go/monitor"
 	authentication_pb "github.com/in-rich/proto/proto-go/authentication"
 	"github.com/in-rich/uservice-authentication/pkg/handlers"
 	"github.com/in-rich/uservice-authentication/pkg/models"
@@ -81,7 +82,7 @@ func TestAuthenticate(t *testing.T) {
 
 			service.On("Exec", context.TODO(), tt.in.Token).Return(tt.serviceResponse, tt.serviceErr)
 
-			handler := handlers.NewAuthenticateHandler(service)
+			handler := handlers.NewAuthenticateHandler(service, monitor.NewDummyGRPCLogger())
 
 			resp, err := handler.Authenticate(context.TODO(), tt.in)
 
