@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/in-rich/lib-go/deploy"
 	"github.com/in-rich/lib-go/monitor"
@@ -40,14 +39,12 @@ func main() {
 
 	depCheck := deploy.DepsCheck{
 		Dependencies: func() map[string]error {
-			_, errAuth := config.AuthClient.GetProjectConfig(context.Background())
 			return map[string]error{
-				"Postgres":       db.Ping(),
-				"Firebase(Auth)": errAuth,
+				"Postgres": db.Ping(),
 			}
 		},
 		Services: deploy.DepCheckServices{
-			"Authenticated": {"Postgres", "Firebase(Auth)"},
+			"Authenticated": {"Postgres"},
 			"GetUser":       {"Postgres"},
 			"ListUsers":     {"Postgres"},
 			"UpdateUser":    {"Postgres"},
